@@ -62,9 +62,9 @@ This hierarchical approach mirrors human perception and significantly improves i
 
 ### Output
 - Completed image **Î** such that:
-```
-![Training Metrics](picture/loss.png)
-```
+
+![formula](formula/1.png) 
+
 where: 
   $I$ is the input image
   $M$ is the binary mask ($1$ for missing regions)
@@ -84,9 +84,9 @@ where:
 **Problem**: Standard attention treats all spatial locations equally, ignoring structural importance.
 
 **Solution**: Explicitly compute structure confidence maps at multiple scales:
-```
+
 ![formula](formula/2.png)
-```
+
 where: $f_k(\cdot)$ represents structure extraction at scale $k$
 
 - Small kernels (3×3) → detect edges
@@ -94,9 +94,9 @@ where: $f_k(\cdot)$ represents structure extraction at scale $k$
 - Mask-weighted → focus on missing regions
 
 **Usage**: The structure map **S** is injected as an attention bias:
-```
+
 ![formula](formula/3.png)
-```
+
 where: $B_{\text{structure}}$ is the structure-aware attention bias
 
 This guides the model to attend more strongly to structural regions without forcing hard constraints.
@@ -105,9 +105,9 @@ This guides the model to attend more strongly to structural regions without forc
 **Why necessary?** Standard convolution contaminates features with masked pixels (even if set to zero).
 
 **Solution**: Only valid pixels contribute to the convolution:
-```
+
 ![formula](formula/4.png)
-```
+
 
 This ensures clean context features and stable early training.
 
@@ -124,9 +124,9 @@ Each stage operates on different feature scales and can be visualized independen
 
 ### 4. Corner-Aware Loss Function
 **Unique contribution**: While most methods use only edge loss, we add explicit corner detection:
-```
+
 ![formula](formula/5.png)
-```
+
 where  $C(\cdot)$ is the corner detector, C(·) combines Sobel + Laplacian responses.
 
 This prevents rounded corners and preserves sharp geometric features.
@@ -202,9 +202,9 @@ f3 = Attention(f2, ctx_features[2], structure_bias=S)
 
 #### 5. Refinement Decoder (Residual Learning)
 Instead of predicting full image:
-```
+
 ![formula](formula/6.png)
-```
+
 This preserves coarse semantics and stabilizes gradients.
 
 ---

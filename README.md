@@ -63,9 +63,8 @@ This hierarchical approach mirrors human perception and significantly improves i
 ### Output
 - Completed image **Î** such that:
 ```
-$$
+```math
 \hat{I} = I \odot (1 - M) + G(I, M) \odot M
-$$
 
 ```
 where: 
@@ -88,9 +87,8 @@ where:
 
 **Solution**: Explicitly compute structure confidence maps at multiple scales:
 ```
-$$
+math
 S = \sigma \left( \sum_{k} f_k(X \odot M) \right)
-$$
 
 ```
 where: $f_k(\cdot)$ represents structure extraction at scale $k$
@@ -101,13 +99,12 @@ where: $f_k(\cdot)$ represents structure extraction at scale $k$
 
 **Usage**: The structure map **S** is injected as an attention bias:
 ```
-$$
+math
 \text{Attention}(Q, K, V)
 =
 \text{Softmax}\left(
 \frac{QK^{\top}}{\sqrt{d}} + B_{\text{structure}}
 \right)V
-$$
 
 ```
 where: $B_{\text{structure}}$ is the structure-aware attention bias
@@ -119,7 +116,7 @@ This guides the model to attend more strongly to structural regions without forc
 
 **Solution**: Only valid pixels contribute to the convolution:
 ```
-$$
+math
 X' =
 \frac{
 \sum (W \cdot X \cdot (1 - M))
@@ -127,7 +124,6 @@ X' =
 \sum (1 - M) + \varepsilon
 }
 + b
-$$
 
 ```
 
@@ -147,7 +143,7 @@ Each stage operates on different feature scales and can be visualized independen
 ### 4. Corner-Aware Loss Function
 **Unique contribution**: While most methods use only edge loss, we add explicit corner detection:
 ```
-$$
+math
 \mathcal{L}_{\text{corner}}
 =
 \left\|
@@ -155,7 +151,6 @@ C(I_{\text{pred}})
 -
 C(I_{\text{gt}})
 \right\|_1
-$$
 
 ```
 where  $C(\cdot)$ is the corner detector, C(·) combines Sobel + Laplacian responses.
@@ -234,9 +229,8 @@ f3 = Attention(f2, ctx_features[2], structure_bias=S)
 #### 5. Refinement Decoder (Residual Learning)
 Instead of predicting full image:
 ```
-$$
+math
 I_{\text{final}} = I_{\text{coarse}} + \Delta I
-$$
 
 ```
 This preserves coarse semantics and stabilizes gradients.

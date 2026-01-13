@@ -63,7 +63,7 @@ This hierarchical approach mirrors human perception and significantly improves i
 ### Output
 - Completed image **Î** such that:
 ```
-![formula](formula/1.png)
+![Training Metrics](picture/loss.png)
 ```
 where: 
   $I$ is the input image

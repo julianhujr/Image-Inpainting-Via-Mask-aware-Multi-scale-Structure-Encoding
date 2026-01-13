@@ -266,7 +266,7 @@ The consistent improvement in boundary PSNR validates our structure-aware approa
 - Sharp edge reconstruction
 
 ### Example 3: Rectangular Masks
-![Results 3](picture/val_epoch_0059.png)
+![Results 3](picture/valresult3.png)
 
 **Analysis**:
 - Large rectangular regions filled coherently

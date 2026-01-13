@@ -63,9 +63,15 @@ This hierarchical approach mirrors human perception and significantly improves i
 ### Output
 - Completed image **Î** such that:
 ```
-  Î = I ⊙ (1-M) + G(I,M) ⊙ M
+$$
+\hat{I} = I \odot (1 - M) + G(I, M) \odot M
+$$
+
 ```
-  where G is the learned inpainting network.
+where: 
+  $I$ is the input image
+  $M$ is the binary mask ($1$ for missing regions)
+  $G(\cdot)$ denotes the inpainting network
 
 ### Key Challenges
 1. **Structure ambiguity**: How to infer missing edges and corners?
@@ -82,8 +88,12 @@ This hierarchical approach mirrors human perception and significantly improves i
 
 **Solution**: Explicitly compute structure confidence maps at multiple scales:
 ```
-S = σ(Σₖ fₖ(X ⊙ M))
+$$
+S = \sigma \left( \sum_{k} f_k(X \odot M) \right)
+$$
+
 ```
+where: $f_k(\cdot)$ represents structure extraction at scale $k$
 
 - Small kernels (3×3) → detect edges
 - Large kernels (15×15) → capture layout
@@ -91,8 +101,16 @@ S = σ(Σₖ fₖ(X ⊙ M))
 
 **Usage**: The structure map **S** is injected as an attention bias:
 ```
-Attention = Softmax((QKᵀ)/√d + B_structure) V
+$$
+\text{Attention}(Q, K, V)
+=
+\text{Softmax}\left(
+\frac{QK^{\top}}{\sqrt{d}} + B_{\text{structure}}
+\right)V
+$$
+
 ```
+where: $B_{\text{structure}}$ is the structure-aware attention bias
 
 This guides the model to attend more strongly to structural regions without forcing hard constraints.
 
@@ -101,7 +119,16 @@ This guides the model to attend more strongly to structural regions without forc
 
 **Solution**: Only valid pixels contribute to the convolution:
 ```
-X' = [Σ(W·X·(1-M))] / [Σ(1-M) + ε] + b
+$$
+X' =
+\frac{
+\sum (W \cdot X \cdot (1 - M))
+}{
+\sum (1 - M) + \varepsilon
+}
++ b
+$$
+
 ```
 
 This ensures clean context features and stable early training.
@@ -120,9 +147,18 @@ Each stage operates on different feature scales and can be visualized independen
 ### 4. Corner-Aware Loss Function
 **Unique contribution**: While most methods use only edge loss, we add explicit corner detection:
 ```
-L_corner = |C(I_pred) - C(I_gt)|₁
+$$
+\mathcal{L}_{\text{corner}}
+=
+\left\|
+C(I_{\text{pred}})
+-
+C(I_{\text{gt}})
+\right\|_1
+$$
+
 ```
-where C(·) combines Sobel + Laplacian responses.
+where  $C(\cdot)$ is the corner detector, C(·) combines Sobel + Laplacian responses.
 
 This prevents rounded corners and preserves sharp geometric features.
 
@@ -198,7 +234,10 @@ f3 = Attention(f2, ctx_features[2], structure_bias=S)
 #### 5. Refinement Decoder (Residual Learning)
 Instead of predicting full image:
 ```
-I_final = I_coarse + ΔI
+$$
+I_{\text{final}} = I_{\text{coarse}} + \Delta I
+$$
+
 ```
 This preserves coarse semantics and stabilizes gradients.
 
@@ -208,7 +247,7 @@ This preserves coarse semantics and stabilizes gradients.
 
 ### Training Metrics (60 Epochs)
 
-![Training Metrics](pictures/loss.png)
+![Training Metrics](picture/loss.png)
 
 **Key observations**:
 - **Coarse loss**: Rapid initial drop, then stabilizes
@@ -218,7 +257,7 @@ This preserves coarse semantics and stabilizes gradients.
 
 ### Validation Metrics
 
-![Validation Metrics](pictures/val_metrics.png)
+![Validation Metrics](picture/val_metrics.png)
 
 **Final metrics** (Epoch 59):
 - **PSNR (Mask)**: 20.82 dB
@@ -229,7 +268,7 @@ The consistent improvement in boundary PSNR validates our structure-aware approa
 
 ### Metrics Summary
 
-![Metrics Summary](pictures/output.png)
+![Metrics Summary](picture/output.png)
 
 **Training convergence**:
 - Total loss range: [0.0218, 0.0340]
@@ -245,7 +284,7 @@ The consistent improvement in boundary PSNR validates our structure-aware approa
 ## 🎨 Qualitative Results
 
 ### Example 1: Small Scattered Masks
-![Results 1](pictures/valresult1.png)
+![Results 1](picture/valresult1.png)
 
 **Analysis**: 
 - Excellent structure preservation (eyes, nose, mouth)
@@ -253,7 +292,7 @@ The consistent improvement in boundary PSNR validates our structure-aware approa
 - No visible artifacts in textured regions (hair, skin)
 
 ### Example 2: Multiple Small Masks
-![Results 2](pictures/valresult2.png)
+![Results 2](picture/valresult2.png)
 
 **Analysis**:
 - Handles multiple disconnected regions well
@@ -261,7 +300,7 @@ The consistent improvement in boundary PSNR validates our structure-aware approa
 - Sharp edge reconstruction
 
 ### Example 3: Rectangular Masks
-![Results 3](pictures/valreult3.png)
+![Results 3](picture/valreult3.png)
 
 **Analysis**:
 - Large rectangular regions filled coherently
@@ -449,7 +488,7 @@ w_corner = λ_corner × (0.3 + 0.7 × progress)   # Strong increase
 
 #### Default Config (Recommended)
 ```python
-base_channels = 40        # ~10M parameters
+base_channels = 40        # ~3M parameters
 epochs = 60
 batch_size = 8
 lr = 2e-4
@@ -550,13 +589,13 @@ All metrics computed **only on masked regions** (scientifically correct):
 ```python
 PSNR = 20 × log₁₀(MAX / √MSE)
 ```
-Higher is better. Typical range: 15-25 dB for inpainting.
+Higher is better. 
 
 #### SSIM (Structural Similarity Index)
 ```python
 SSIM = (2μₓμᵧ + c₁)(2σₓᵧ + c₂) / ((μₓ² + μᵧ² + c₁)(σₓ² + σᵧ² + c₂))
 ```
-Range: [0, 1]. Higher is better.
+Higher is better.
 
 #### Boundary PSNR
 PSNR computed only in boundary region (5-pixel width).

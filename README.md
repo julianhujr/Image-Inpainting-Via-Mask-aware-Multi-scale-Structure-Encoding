@@ -63,9 +63,7 @@ This hierarchical approach mirrors human perception and significantly improves i
 ### Output
 - Completed image **Î** such that:
 ```
-```math
-\hat{I} = I \odot (1 - M) + G(I, M) \odot M
-
+![formula](formula/1.png)
 ```
 where: 
   $I$ is the input image
@@ -87,9 +85,7 @@ where:
 
 **Solution**: Explicitly compute structure confidence maps at multiple scales:
 ```
-math
-S = \sigma \left( \sum_{k} f_k(X \odot M) \right)
-
+![formula](formula/2.png)
 ```
 where: $f_k(\cdot)$ represents structure extraction at scale $k$
 
@@ -99,13 +95,7 @@ where: $f_k(\cdot)$ represents structure extraction at scale $k$
 
 **Usage**: The structure map **S** is injected as an attention bias:
 ```
-math
-\text{Attention}(Q, K, V)
-=
-\text{Softmax}\left(
-\frac{QK^{\top}}{\sqrt{d}} + B_{\text{structure}}
-\right)V
-
+![formula](formula/3.png)
 ```
 where: $B_{\text{structure}}$ is the structure-aware attention bias
 
@@ -116,15 +106,7 @@ This guides the model to attend more strongly to structural regions without forc
 
 **Solution**: Only valid pixels contribute to the convolution:
 ```
-math
-X' =
-\frac{
-\sum (W \cdot X \cdot (1 - M))
-}{
-\sum (1 - M) + \varepsilon
-}
-+ b
-
+![formula](formula/4.png)
 ```
 
 This ensures clean context features and stable early training.
@@ -143,15 +125,7 @@ Each stage operates on different feature scales and can be visualized independen
 ### 4. Corner-Aware Loss Function
 **Unique contribution**: While most methods use only edge loss, we add explicit corner detection:
 ```
-math
-\mathcal{L}_{\text{corner}}
-=
-\left\|
-C(I_{\text{pred}})
--
-C(I_{\text{gt}})
-\right\|_1
-
+![formula](formula/5.png)
 ```
 where  $C(\cdot)$ is the corner detector, C(·) combines Sobel + Laplacian responses.
 
@@ -229,9 +203,7 @@ f3 = Attention(f2, ctx_features[2], structure_bias=S)
 #### 5. Refinement Decoder (Residual Learning)
 Instead of predicting full image:
 ```
-math
-I_{\text{final}} = I_{\text{coarse}} + \Delta I
-
+![formula](formula/6.png)
 ```
 This preserves coarse semantics and stabilizes gradients.
 
@@ -251,7 +223,7 @@ This preserves coarse semantics and stabilizes gradients.
 
 ### Validation Metrics
 
-![Validation Metrics](picture/val_metrics.png)
+![Validation Metrics](picture/valmetrics.png)
 
 **Final metrics** (Epoch 59):
 - **PSNR (Mask)**: 20.82 dB
@@ -294,7 +266,7 @@ The consistent improvement in boundary PSNR validates our structure-aware approa
 - Sharp edge reconstruction
 
 ### Example 3: Rectangular Masks
-![Results 3](picture/valreult3.png)
+![Results 3](picture/val_epoch_0059.png)
 
 **Analysis**:
 - Large rectangular regions filled coherently
